@@ -1,0 +1,11 @@
+fileFormatVersion: 2
+guid: 475203721b41c4607b24eb274cc96a4a
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences:
+  - car1Texture: {fileID: 2800000, guid: b51db47d79ba541bd9b0d140a678ad3d, type: 3}
+  - car2Texture: {instanceID: 0}
+  - car3Texture: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
