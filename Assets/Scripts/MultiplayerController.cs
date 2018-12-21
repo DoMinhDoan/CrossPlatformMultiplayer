@@ -4,9 +4,13 @@ using UnityEngine;
 using GooglePlayGames;
 using GooglePlayGames.BasicApi.Multiplayer;
 
-public class MultiplayerController
+public class MultiplayerController : RealTimeMultiplayerListener
 {
     private static MultiplayerController _instance = null;
+
+    private uint minimumOpponents = 1;
+    private uint maximumOpponents = 1;
+    private uint gameVariation = 0;
 
     private MultiplayerController()
     {
@@ -34,6 +38,7 @@ public class MultiplayerController
                 if(success)
                 {
                     Debug.Log("Signed in! Welcome " + PlayGamesPlatform.Instance.localUser.userName);
+                    StartMatchmaking();
                 }
                 else
                 {
@@ -56,6 +61,7 @@ public class MultiplayerController
                 if(success)
                 {
                     Debug.Log("Signed In! Welcome " + PlayGamesPlatform.Instance.localUser.userName);
+                    StartMatchmaking();
                 }
                 else
                 {
@@ -79,4 +85,61 @@ public class MultiplayerController
         PlayGamesPlatform.Instance.SignOut();
     }
     
+    private void StartMatchmaking()
+    {
+        PlayGamesPlatform.Instance.RealTime.CreateQuickGame(minimumOpponents, maximumOpponents, gameVariation, this);
+    }
+
+    private void ShowMPStatus(string message)
+    {
+        Debug.Log(message);
+    }
+
+    public void OnRoomSetupProgress(float percent)
+    {
+        ShowMPStatus("We are " + percent + "% done with setup");
+    }
+
+    public void OnRoomConnected(bool success)
+    {
+        if(success)
+        {
+            ShowMPStatus("We are connected to the room! I would probably start out game now.");
+        }
+        else
+        {
+            ShowMPStatus("Error when connecting to the room.");
+        }
+    }
+
+    public void OnLeftRoom()
+    {
+        ShowMPStatus("We have left the room.");
+    }
+
+    public void OnParticipantLeft(Participant participant)
+    {
+        ShowMPStatus("Player '" + participant.DisplayName + "'  has left.");
+    }
+
+    public void OnPeersConnected(string[] participantIds)
+    {
+        foreach (var participantId in participantIds)
+        {
+            ShowMPStatus("Player " + participantId + " has connected.");
+        }
+    }
+
+    public void OnPeersDisconnected(string[] participantIds)
+    {
+        foreach (var participantId in participantIds)
+        {
+            ShowMPStatus("Player " + participantId + " has disconnected.");
+        }
+    }
+
+    public void OnRealTimeMessageReceived(bool isReliable, string senderId, byte[] data)
+    {
+        ShowMPStatus("We have received some gameplay messages from participant ID:" + senderId);
+    }
 }
