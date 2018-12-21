@@ -41,18 +41,18 @@ public class CarController : MonoBehaviour {
 
 	public void Stop() {
 		_stopped = true;
-		rigidbody2D.velocity = Vector2.zero;
+		GetComponent<Rigidbody2D>().velocity = Vector2.zero;
 	}
 
 	void FixedUpdate () {
 		if (_paused || _stopped) return;
 
 		// Add a vector related to the steering
-		rigidbody2D.velocity = analogControl.GetNormalizedSteering () * _carSpeed;
+		GetComponent<Rigidbody2D>().velocity = analogControl.GetNormalizedSteering () * _carSpeed;
 
 		// Turn towards the direction we're traveling
-		if (rigidbody2D.velocity.magnitude > 0.4f) {
-			float targetAngle = Mathf.Atan2 (rigidbody2D.velocity.y, rigidbody2D.velocity.x) * Mathf.Rad2Deg;
+		if (GetComponent<Rigidbody2D>().velocity.magnitude > 0.4f) {
+			float targetAngle = Mathf.Atan2 (GetComponent<Rigidbody2D>().velocity.y, GetComponent<Rigidbody2D>().velocity.x) * Mathf.Rad2Deg;
 			transform.rotation = Quaternion.Slerp (transform.rotation, Quaternion.Euler (0, 0, targetAngle), 8 * Time.deltaTime);
 		}
 	}

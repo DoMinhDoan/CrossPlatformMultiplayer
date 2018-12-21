@@ -18,7 +18,7 @@ public class AnalogControl : MonoBehaviour {
 		// A bit of a hack to make sure the gamepad is on screen for short devices like the iPad
 		
 		
-		float padWidth = basePad.GetComponent<SpriteRenderer>().renderer.bounds.size.x;
+		float padWidth = basePad.GetComponent<SpriteRenderer>().GetComponent<Renderer>().bounds.size.x;
 		Vector3 padLeft = Camera.main.WorldToViewportPoint(basePad.transform.position - new Vector3(padWidth, 0, 0));
 		Vector3 padRight = Camera.main.WorldToViewportPoint(basePad.transform.position + new Vector3(padWidth, 0, 0));
 		
@@ -30,7 +30,7 @@ public class AnalogControl : MonoBehaviour {
 		
 		    
 		            
-		_maxRadius = basePad.renderer.bounds.size.x / 2;
+		_maxRadius = basePad.GetComponent<Renderer>().bounds.size.x / 2;
 		_calibration = new Vector3 (0.0f, -0.6f, 0.0f);
 		// Only considering these two platforms for now
 		_onMobile = (Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer);
