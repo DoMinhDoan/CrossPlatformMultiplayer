@@ -38,5 +38,7 @@ public class MainMenuScript : MonoBehaviour {
         buttonHeight = 55.0f * Screen.width / 660.0f;
         
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
+
+        MultiplayerController.Instance.TrySilentSignIn();
     }       
 }
