@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class MainMenuScript : MonoBehaviour {
 
@@ -19,10 +20,12 @@ public class MainMenuScript : MonoBehaviour {
 				if (i == 0) {
 					// Single player mode!
 					RetainedUserPicksScript.Instance.multiplayerGame = false;
-					Application.LoadLevel("PickCarMenu");
+					SceneManager.LoadScene("PickCarMenu");
 				} else if (i == 1) {
 					RetainedUserPicksScript.Instance.multiplayerGame = true;
                     Debug.Log("We would normally load a multiplayer game here");
+
+                    MultiplayerController.Instance.SignInAndStartMPGame();
                 }
 			}
 		}
