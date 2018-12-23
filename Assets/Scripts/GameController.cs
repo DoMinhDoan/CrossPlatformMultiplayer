@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.SceneManagement;
+using GooglePlayGames.BasicApi.Multiplayer;
+using System.Collections.Generic;
 
 public class GameController : MonoBehaviour {
 
@@ -21,6 +23,15 @@ public class GameController : MonoBehaviour {
 	private string gameOvertext;
 	private float _nextCarAngleTarget = Mathf.PI;
 	private const float FINISH_TARGET = Mathf.PI;
+
+    // Multiplayer
+    public GameObject opponentPrefab;
+
+    private bool _multiplayerReady;
+    private string _myParticipantID;
+    private Vector2 _startingPoint = new Vector2(0.09675431f, -1.752321f);
+    private float _startingPointYOffset = 0.2f;
+    private Dictionary<string, OpponentCarController> _opponentScripts;
 
 	// Use this for initialization
 	void Start () {
@@ -45,6 +56,32 @@ public class GameController : MonoBehaviour {
 
     void SetupMultiplayerGame() {
         // TODO: Fill this out!
+        _myParticipantID = MultiplayerController.Instance.GetMyParticipantID();
+        List<Participant> allPlayers = MultiplayerController.Instance.GetAllPlayer();
+        _opponentScripts = new Dictionary<string, OpponentCarController>(allPlayers.Count - 1);
+        for(int i = 0; i< allPlayers.Count; i++)
+        {
+            Vector3 startPosition = new Vector3(_startingPoint.x, _startingPoint.y + (i * _startingPointYOffset), 0);
+            string participantID = allPlayers[i].ParticipantId;
+            if(participantID == _myParticipantID)   //player car
+            {
+                myCar.transform.position = startPosition;
+                myCar.GetComponent<CarController>().SetCarChoice(i + 1, true);
+            }
+            else
+            {
+                GameObject opponentCar = Instantiate(opponentPrefab, startPosition, Quaternion.identity);
+
+                OpponentCarController opponentCarScript = opponentCar.GetComponent<OpponentCarController>();
+                opponentCarScript.SetCarNumber(i + 1);
+                _opponentScripts[participantID] = opponentCarScript;
+            }
+        }
+        _lapsRemaining = 3;
+        _timePlayed = 0;
+        guiObject.SetLaps(_lapsRemaining);
+        guiObject.SetTime(_timePlayed);
+        _multiplayerReady = true;
     }
 
 
@@ -71,7 +108,6 @@ public class GameController : MonoBehaviour {
 
 		}
 	}
-    
     
     void DoMultiplayerUpdate() {
         // In a multiplayer game, time counts up!

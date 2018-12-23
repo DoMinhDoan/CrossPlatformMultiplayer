@@ -93,6 +93,17 @@ public class MultiplayerController : RealTimeMultiplayerListener
         PlayGamesPlatform.Instance.RealTime.CreateQuickGame(minimumOpponents, maximumOpponents, gameVariation, this);
     }
 
+    public List<Participant> GetAllPlayer()
+    {
+        // It's worth noting here that the library already sorts this list for you by participantId, so you don't need to sort it yourself.
+        return PlayGamesPlatform.Instance.RealTime.GetConnectedParticipants();
+    }
+
+    public string GetMyParticipantID()
+    {
+        return PlayGamesPlatform.Instance.RealTime.GetSelf().ParticipantId;
+    }
+
     private void ShowMPStatus(string message)
     {
         Debug.Log(message);

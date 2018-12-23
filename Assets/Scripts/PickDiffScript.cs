@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class PickDiffScript : MonoBehaviour {
 
@@ -22,7 +23,7 @@ public class PickDiffScript : MonoBehaviour {
 				
 				// Let's save this
 				RetainedUserPicksScript.Instance.diffSelected = i+1;
-				Application.LoadLevel("MainGame");
+				SceneManager.LoadScene("MainGame");
 			}
 		}
 		if (GUI.Button (new Rect (0.0f,
@@ -30,7 +31,7 @@ public class PickDiffScript : MonoBehaviour {
 		                          backButtonWidth,
 		                          backButtonHeight), goBackTexture)) {
 			Debug.Log("Go back to car selection!");
-			Application.LoadLevel("PickCarMenu");
+            SceneManager.LoadScene("PickCarMenu");
 		}
 	}
     
