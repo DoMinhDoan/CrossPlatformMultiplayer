@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class PickCarScript : MonoBehaviour {
 
@@ -23,7 +24,7 @@ public class PickCarScript : MonoBehaviour {
 				Debug.Log ("Let's load up the menu!");
 				// Let's save this
 				RetainedUserPicksScript.Instance.carSelected = i+1;
-				Application.LoadLevel("PickDiffMenu");
+                SceneManager.LoadScene("PickDiffMenu");
 			}
 		}
 		if (GUI.Button (new Rect (0.0f,
@@ -31,7 +32,7 @@ public class PickCarScript : MonoBehaviour {
 		                         backButtonWidth,
 		                         backButtonHeight), goBackTexture)) {
 			Debug.Log("Go back to main menu!");
-			Application.LoadLevel("MainMenu");
+            SceneManager.LoadScene("MainMenu");
 		}
 	}
     

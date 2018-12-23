@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using GooglePlayGames;
 using GooglePlayGames.BasicApi.Multiplayer;
+using UnityEngine.SceneManagement;
 
 public class MultiplayerController : RealTimeMultiplayerListener
 {
@@ -11,6 +12,8 @@ public class MultiplayerController : RealTimeMultiplayerListener
     private uint minimumOpponents = 1;
     private uint maximumOpponents = 1;
     private uint gameVariation = 0;
+
+    public MPLobbyListener lobbyListener;
 
     private MultiplayerController()
     {
@@ -93,6 +96,10 @@ public class MultiplayerController : RealTimeMultiplayerListener
     private void ShowMPStatus(string message)
     {
         Debug.Log(message);
+        if(lobbyListener != null)
+        {
+            lobbyListener.SetLobbyStatusMessage(message);
+        }
     }
 
     public void OnRoomSetupProgress(float percent)
@@ -105,6 +112,9 @@ public class MultiplayerController : RealTimeMultiplayerListener
         if(success)
         {
             ShowMPStatus("We are connected to the room! I would probably start out game now.");
+            lobbyListener.HideLobby();
+            lobbyListener = null;
+            SceneManager.LoadScene("MainGame");
         }
         else
         {
