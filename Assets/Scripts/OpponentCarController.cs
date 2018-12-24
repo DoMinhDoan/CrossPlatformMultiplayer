@@ -21,4 +21,12 @@ public class OpponentCarController : MonoBehaviour
     {
         GetComponent<SpriteRenderer>().sprite = carSprites[number - 1];
     }
+
+    public void SetCarInformation(float posX, float posY, float velX, float velY, float rotZ)
+    {
+        transform.position = new Vector3(posX, posY, 0);
+        transform.rotation = Quaternion.Euler(0, 0, rotZ);
+
+        // we're going to do nothing with velocity ... for now
+    }
 }

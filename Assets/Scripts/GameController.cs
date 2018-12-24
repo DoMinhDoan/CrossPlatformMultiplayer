@@ -4,7 +4,7 @@ using UnityEngine.SceneManagement;
 using GooglePlayGames.BasicApi.Multiplayer;
 using System.Collections.Generic;
 
-public class GameController : MonoBehaviour {
+public class GameController : MonoBehaviour, MPUpdateListener {
 
 	public GameObject myCar;
 	public GuiController guiObject;
@@ -56,6 +56,9 @@ public class GameController : MonoBehaviour {
 
     void SetupMultiplayerGame() {
         // TODO: Fill this out!
+
+        MultiplayerController.Instance.updateListener = this;
+
         _myParticipantID = MultiplayerController.Instance.GetMyParticipantID();
         List<Participant> allPlayers = MultiplayerController.Instance.GetAllPlayer();
         _opponentScripts = new Dictionary<string, OpponentCarController>(allPlayers.Count - 1);
@@ -113,8 +116,12 @@ public class GameController : MonoBehaviour {
         // In a multiplayer game, time counts up!
         _timePlayed += Time.deltaTime;
         guiObject.SetTime(_timePlayed);
-        
+
         // We will be doing more here
+
+        // Here you send all information the other players need to display the local player's car appropriately: their x and y coordinates, z-axis rotaion, and the car's current velocity.
+        MultiplayerController.Instance.SendMyUpdate(myCar.transform.position.x, myCar.transform.position.y, myCar.GetComponent<Rigidbody2D>().velocity, myCar.transform.rotation.eulerAngles.z);
+
         
     }
 	
@@ -153,4 +160,17 @@ public class GameController : MonoBehaviour {
 		}
 
 	}
+
+    public void UpdateReceived(string senderId, float posX, float posY, float velX, float velY, float rotZ)
+    {
+        if(_multiplayerReady)
+        {
+            OpponentCarController opponent = _opponentScripts[senderId];
+            if(opponent != null)
+            {
+                opponent.SetCarInformation(posX, posY, velX, velY, rotZ);
+            }
+
+        }
+    }
 }
