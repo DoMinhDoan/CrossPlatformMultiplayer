@@ -28,9 +28,17 @@ public class MultiplayerController : RealTimeMultiplayerListener
     private int _updateMessageLength = 22;
     private List<byte> _updateMessage;
 
+    // Byte + Byte + 1 float for time played
+        // 1 Byte = protocol
+        // 1 Byte = 'U'
+        // 4 Byte = 1 float time played
+    private int _finishMessageLength = 6;
+    private List<byte> _finishMessage;
+
     private MultiplayerController()
     {
         _updateMessage = new List<byte>(_updateMessageLength);
+        _finishMessage = new List<byte>(_finishMessageLength);
 
         PlayGamesPlatform.DebugLogEnabled = true;
         PlayGamesPlatform.Activate();
@@ -135,6 +143,22 @@ public class MultiplayerController : RealTimeMultiplayerListener
         PlayGamesPlatform.Instance.RealTime.SendMessageToAll(false, messageToSend);
     }
 
+    public void SendFinishMessage(float timePlayed)
+    {
+        _finishMessage.Clear();
+        _finishMessage.Add(_protocolVersion);
+        _finishMessage.Add((byte)'F');
+        _finishMessage.AddRange(System.BitConverter.GetBytes(timePlayed));
+
+        byte[] messageToSend = _finishMessage.ToArray();
+        Debug.Log("Sending my finish message " + messageToSend + " to all player in the room");
+
+        //  sends this message reliably, instead of via the unreliable mechanism you've used all along.
+        // Why? This time it's extra-super-important that all players know your car has finished.
+        // If this message were lost, your game would never end.
+        PlayGamesPlatform.Instance.RealTime.SendMessageToAll(true, messageToSend);
+    }
+
     private void ShowMPStatus(string message)
     {
         Debug.Log(message);
@@ -211,6 +235,12 @@ public class MultiplayerController : RealTimeMultiplayerListener
             {
                 updateListener.UpdateReceived(senderId, posX, posY, velX, velY, rotZ);
             }
+        }
+        else if (messageType == 'F' && data.Length == _finishMessageLength)
+        {
+            float finalTime = System.BitConverter.ToSingle(data, 2);
+            Debug.Log("Player:" + senderId + " finished the game with " + finalTime + " s");
+            updateListener.PlayerFinished(senderId, finalTime);
         }
 
     }

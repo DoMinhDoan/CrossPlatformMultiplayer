@@ -3,6 +3,7 @@ using System.Collections;
 using UnityEngine.SceneManagement;
 using GooglePlayGames.BasicApi.Multiplayer;
 using System.Collections.Generic;
+using System;
 
 public class GameController : MonoBehaviour, MPUpdateListener {
 
@@ -32,6 +33,7 @@ public class GameController : MonoBehaviour, MPUpdateListener {
     private Vector2 _startingPoint = new Vector2(0.09675431f, -1.752321f);
     private float _startingPointYOffset = 0.2f;
     private Dictionary<string, OpponentCarController> _opponentScripts;
+    private Dictionary<string, float> _finishTimes;
 
     private float _nextBroadcastTime = 0;
 
@@ -64,10 +66,12 @@ public class GameController : MonoBehaviour, MPUpdateListener {
         _myParticipantID = MultiplayerController.Instance.GetMyParticipantID();
         List<Participant> allPlayers = MultiplayerController.Instance.GetAllPlayer();
         _opponentScripts = new Dictionary<string, OpponentCarController>(allPlayers.Count - 1);
+        _finishTimes = new Dictionary<string, float>(allPlayers.Count);
         for(int i = 0; i< allPlayers.Count; i++)
         {
             Vector3 startPosition = new Vector3(_startingPoint.x, _startingPoint.y + (i * _startingPointYOffset), 0);
             string participantID = allPlayers[i].ParticipantId;
+            _finishTimes[participantID] = -1;
             if(participantID == _myParticipantID)   //player car
             {
                 myCar.transform.position = startPosition;
@@ -156,8 +160,15 @@ public class GameController : MonoBehaviour, MPUpdateListener {
 				myCar.GetComponent<CarController>().PlaySoundForLapFinished();
 				if (_lapsRemaining <= 0) {
 					if (_multiplayerGame) {
-						// TODO: Properly finish a multiplayer game
-					} else {
+                        // TODO: Properly finish a multiplayer game
+                        myCar.GetComponent<CarController>().Stop();
+                        MultiplayerController.Instance.SendMyUpdate(myCar.transform.position.x, myCar.transform.position.y, new Vector2(0, 0), myCar.transform.rotation.eulerAngles.z);
+
+                        MultiplayerController.Instance.SendFinishMessage(_timePlayed);
+
+                        // you need to tell the local device that the game is done, as calling SendMessageToAll() doesn't send a message to the local player.
+                        PlayerFinished(_myParticipantID, _timePlayed);
+                    } else {
 						ShowGameOver(true);
 					}
 				}
@@ -177,5 +188,44 @@ public class GameController : MonoBehaviour, MPUpdateListener {
             }
 
         }
+    }
+
+    public void PlayerFinished(string senderId, float finalTime)
+    {
+        if (_multiplayerReady)
+        {
+            if(_finishTimes[senderId] == -1)
+            {
+                _finishTimes[senderId] = finalTime;
+            }
+
+            CheckForMPGameOver();
+        }
+    }
+
+    private void CheckForMPGameOver()
+    {
+        float myTime = _finishTimes[_myParticipantID];
+        int myLevel = 0;
+
+        foreach(var nextTime in _finishTimes.Values)
+        {
+            if(nextTime == -1)  //someone haven't finished yet. waiting
+            {
+                return;
+            }
+            if(nextTime < myTime)
+            {
+                myLevel++;
+            }
+        }
+
+        string[] ranks = new string[] { "1st", "2nd", "3rd", "4th" };
+
+        gameOvertext = "Congratulation! You are in " + ranks[myLevel] + " with " + myTime + "s";
+        PauseGame();
+        _showingGameOver = true;
+
+        // TODO: Leave the room and go back to the main menu
     }
 }
