@@ -12,6 +12,8 @@ public class OpponentCarController : MonoBehaviour
     private Quaternion _startRot;
     private Quaternion _destinationRot;
 
+    private Vector3 _lastKnownVel;
+
     private float _lastTimeUpdate;
     private float _timePerUpdate = 0.16f;
 
@@ -32,6 +34,12 @@ public class OpponentCarController : MonoBehaviour
         {
             transform.position = Vector3.Lerp(_startPos, _destinationPos, interval);
             transform.rotation = Quaternion.Slerp(_startRot, _destinationRot, interval);
+        }
+        else   //extrapolation 
+        {
+            // Adding this extrapolation means it takes you longer to bring the player to the point where they were a few milliseconds ago! 
+            // And if your opponent's updates take too long to arrive, their car will calmly drive off the edge of the playing field.
+            transform.position = transform.position + (_lastKnownVel * Time.deltaTime);
         }
     }
 
@@ -56,5 +64,6 @@ public class OpponentCarController : MonoBehaviour
         _lastTimeUpdate = Time.time;
 
         // we're going to do nothing with velocity ... for now
+        _lastKnownVel = new Vector3(velX, velY, 0);
     }
 }
