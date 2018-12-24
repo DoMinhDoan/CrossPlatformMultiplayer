@@ -49,6 +49,11 @@ public class MainMenuScript : MonoBehaviour, MPLobbyListener {
         {
             GUI.skin = guiSkin;
             GUI.Box(new Rect(Screen.width * 0.25f, Screen.height * 0.25f, Screen.width * 0.5f, Screen.height * 0.5f), _lobbyMessage);
+            if(GUI.Button(new Rect(Screen.width * 0.6f, Screen.height * 0.76f, Screen.width * 0.1f, Screen.height * 0.07f), "Cancel"))
+            {
+                MultiplayerController.Instance.LeaveGame();
+                HideLobby();
+            }
         }
 	}
     
