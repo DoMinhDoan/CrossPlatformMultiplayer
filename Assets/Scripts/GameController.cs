@@ -33,6 +33,8 @@ public class GameController : MonoBehaviour, MPUpdateListener {
     private float _startingPointYOffset = 0.2f;
     private Dictionary<string, OpponentCarController> _opponentScripts;
 
+    private float _nextBroadcastTime = 0;
+
 	// Use this for initialization
 	void Start () {
 		RetainedUserPicksScript userPicksScript = RetainedUserPicksScript.Instance;
@@ -120,9 +122,12 @@ public class GameController : MonoBehaviour, MPUpdateListener {
         // We will be doing more here
 
         // Here you send all information the other players need to display the local player's car appropriately: their x and y coordinates, z-axis rotaion, and the car's current velocity.
-        MultiplayerController.Instance.SendMyUpdate(myCar.transform.position.x, myCar.transform.position.y, myCar.GetComponent<Rigidbody2D>().velocity, myCar.transform.rotation.eulerAngles.z);
 
-        
+        if(Time.time > _nextBroadcastTime)
+        {
+            MultiplayerController.Instance.SendMyUpdate(myCar.transform.position.x, myCar.transform.position.y, myCar.GetComponent<Rigidbody2D>().velocity, myCar.transform.rotation.eulerAngles.z);
+            _nextBroadcastTime = Time.time + 0.16f;
+        }        
     }
 	
 	void Update () {
