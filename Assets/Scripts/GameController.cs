@@ -196,14 +196,14 @@ public class GameController : MonoBehaviour, MPUpdateListener {
 
 	}
 
-    public void UpdateReceived(string senderId, float posX, float posY, float velX, float velY, float rotZ)
+    public void UpdateReceived(string senderId, int messageNum, float posX, float posY, float velX, float velY, float rotZ)
     {
         if(_multiplayerReady)
         {
             OpponentCarController opponent = _opponentScripts[senderId];
             if(opponent != null)
             {
-                opponent.SetCarInformation(posX, posY, velX, velY, rotZ);
+                opponent.SetCarInformation(messageNum, posX, posY, velX, velY, rotZ);
             }
 
         }

@@ -10,7 +10,7 @@ public interface MPLobbyListener
 
 public interface MPUpdateListener
 {
-    void UpdateReceived(string senderId, float posX, float posY, float velX, float velY, float rotZ);
+    void UpdateReceived(string senderId, int messageNum, float posX, float posY, float velX, float velY, float rotZ);
     void PlayerFinished(string senderId, float finalTime);
     void LeftRomConfirmed();
     void PlayerLeftRoom(string participantId);

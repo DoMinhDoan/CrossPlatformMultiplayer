@@ -16,16 +16,19 @@ public class MultiplayerController : RealTimeMultiplayerListener
     public MPLobbyListener lobbyListener;
     public MPUpdateListener updateListener;
 
+    // you should change your version number, since your message format has changed.
     private byte _protocolVersion = 1;
+    private int _myMessageNum;
     // Byte + Byte + 2 floats for position + 2 floats for velocity + 1 float for rotation z
         // 1 Byte = protocol
         // 1 Byte = 'U'
+        // 4 Byte = 1 interger message number
         // 8 Byte = 2 floats position
         // 8 Byte = 2 floats velocity
         // 4 Byte = 1 float rotaion x
         // 12 Byte = Total
 
-    private int _updateMessageLength = 22;
+    private int _updateMessageLength = 26;
     private List<byte> _updateMessage;
 
     // Byte + Byte + 1 float for time played
@@ -132,6 +135,7 @@ public class MultiplayerController : RealTimeMultiplayerListener
         _updateMessage.Clear();
         _updateMessage.Add(_protocolVersion);
         _updateMessage.Add((byte)'U');
+        _updateMessage.AddRange(System.BitConverter.GetBytes(++_myMessageNum));
         _updateMessage.AddRange(System.BitConverter.GetBytes(posX));
         _updateMessage.AddRange(System.BitConverter.GetBytes(posY));
         _updateMessage.AddRange(System.BitConverter.GetBytes(velocity.x));
@@ -185,6 +189,7 @@ public class MultiplayerController : RealTimeMultiplayerListener
             ShowMPStatus("We are connected to the room! I would probably start out game now.");
             lobbyListener.HideLobby();
             lobbyListener = null;
+            _myMessageNum = 0;
             SceneManager.LoadScene("MainGame");
         }
         else
@@ -236,17 +241,18 @@ public class MultiplayerController : RealTimeMultiplayerListener
         char messageType = (char)data[1];
         if(messageType == 'U' && data.Length == _updateMessageLength)
         {
-            float posX = System.BitConverter.ToSingle(data, 2);
-            float posY = System.BitConverter.ToSingle(data, 6);
-            float velX = System.BitConverter.ToSingle(data, 10);
-            float velY = System.BitConverter.ToSingle(data, 14);
-            float rotZ = System.BitConverter.ToSingle(data, 18);
+            int messageNum = System.BitConverter.ToInt32(data, 2);
+            float posX = System.BitConverter.ToSingle(data, 6);
+            float posY = System.BitConverter.ToSingle(data, 10);
+            float velX = System.BitConverter.ToSingle(data, 14);
+            float velY = System.BitConverter.ToSingle(data, 18);
+            float rotZ = System.BitConverter.ToSingle(data, 22);
 
             Debug.Log("Player:" + senderId + " position:(" + posX + "," + posY + ") Velocity:(" + velX + "," + velY + ") Rotation:" + rotZ);
 
             if(updateListener != null)
             {
-                updateListener.UpdateReceived(senderId, posX, posY, velX, velY, rotZ);
+                updateListener.UpdateReceived(senderId, messageNum, posX, posY, velX, velY, rotZ);
             }
         }
         else if (messageType == 'F' && data.Length == _finishMessageLength)

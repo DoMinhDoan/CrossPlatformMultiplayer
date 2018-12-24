@@ -25,6 +25,8 @@ public class OpponentCarController : MonoBehaviour
         }
     }
 
+    private int _lastMessageNum;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -32,6 +34,7 @@ public class OpponentCarController : MonoBehaviour
         _startRot = transform.rotation;
 
         _lastTimeUpdate = Time.time;
+        _lastMessageNum = 0;
     }
 
     // Update is called once per frame
@@ -57,8 +60,14 @@ public class OpponentCarController : MonoBehaviour
         GetComponent<SpriteRenderer>().sprite = carSprites[number - 1];
     }
 
-    public void SetCarInformation(float posX, float posY, float velX, float velY, float rotZ)
+    public void SetCarInformation(int messageNum, float posX, float posY, float velX, float velY, float rotZ)
     {
+        if(messageNum <= _lastTimeUpdate)
+        {
+            return;
+        }
+        _lastMessageNum = messageNum;
+
         // Let interpolation instead
         //transform.position = new Vector3(posX, posY, 0);
         //transform.rotation = Quaternion.Euler(0, 0, rotZ);
