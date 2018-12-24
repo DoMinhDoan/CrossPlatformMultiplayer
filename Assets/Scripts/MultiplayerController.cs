@@ -159,6 +159,11 @@ public class MultiplayerController : RealTimeMultiplayerListener
         PlayGamesPlatform.Instance.RealTime.SendMessageToAll(true, messageToSend);
     }
 
+    public void LeaveGame()
+    {
+        PlayGamesPlatform.Instance.RealTime.LeaveRoom();
+    }
+
     private void ShowMPStatus(string message)
     {
         Debug.Log(message);
@@ -191,6 +196,10 @@ public class MultiplayerController : RealTimeMultiplayerListener
     public void OnLeftRoom()
     {
         ShowMPStatus("We have left the room.");
+        if(updateListener != null)
+        {
+            updateListener.LeftRomConfirmed();
+        }
     }
 
     public void OnParticipantLeft(Participant participant)

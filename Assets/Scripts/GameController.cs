@@ -227,5 +227,17 @@ public class GameController : MonoBehaviour, MPUpdateListener {
         _showingGameOver = true;
 
         // TODO: Leave the room and go back to the main menu
+        Invoke("LeaveMPGame", 3.0f);
+    }
+
+    void LeaveMPGame()
+    {
+        MultiplayerController.Instance.LeaveGame();
+    }
+
+    public void LeftRomConfirmed()
+    {
+        MultiplayerController.Instance.updateListener = null;
+        SceneManager.LoadScene("MainMenu");
     }
 }

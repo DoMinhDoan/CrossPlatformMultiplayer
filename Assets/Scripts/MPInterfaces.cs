@@ -12,4 +12,5 @@ public interface MPUpdateListener
 {
     void UpdateReceived(string senderId, float posX, float posY, float velX, float velY, float rotZ);
     void PlayerFinished(string senderId, float finalTime);
+    void LeftRomConfirmed();
 }
