@@ -37,6 +37,11 @@ public class GameController : MonoBehaviour, MPUpdateListener {
 
     private float _nextBroadcastTime = 0;
 
+    // Multiplayer timeout
+    private float timeOutThreshold = 5.0f;
+    private float _timeOutCheckInterval = 1.0f;
+    private float _nextTimeoutCheck = 0.0f;
+
 	// Use this for initialization
 	void Start () {
 		RetainedUserPicksScript userPicksScript = RetainedUserPicksScript.Instance;
@@ -116,6 +121,13 @@ public class GameController : MonoBehaviour, MPUpdateListener {
 			GUI.Box(new Rect(Screen.width * 0.25f, Screen.height * 0.25f, Screen.width * 0.5f, Screen.height * 0.5f), gameOvertext);
 
 		}
+        if(_multiplayerGame)
+        {
+            if(GUI.Button(new Rect(0.0f, 0.0f, Screen.width * 0.1f, Screen.height * 0.1f), "Quit"))
+            {
+                MultiplayerController.Instance.LeaveGame();
+            }
+        }
 	}
     
     void DoMultiplayerUpdate() {
@@ -127,11 +139,18 @@ public class GameController : MonoBehaviour, MPUpdateListener {
 
         // Here you send all information the other players need to display the local player's car appropriately: their x and y coordinates, z-axis rotaion, and the car's current velocity.
 
-        if(Time.time > _nextBroadcastTime)
+        if (Time.time > _nextBroadcastTime)
         {
             MultiplayerController.Instance.SendMyUpdate(myCar.transform.position.x, myCar.transform.position.y, myCar.GetComponent<Rigidbody2D>().velocity, myCar.transform.rotation.eulerAngles.z);
             _nextBroadcastTime = Time.time + 0.16f;
-        }        
+        }
+
+        // update multilplayer timeout
+        if(Time.time > _nextTimeoutCheck)
+        {
+            _nextTimeoutCheck = Time.time + _timeOutCheckInterval;
+            CheckForTimeOuts();
+        }
     }
 	
 	void Update () {
@@ -239,5 +258,32 @@ public class GameController : MonoBehaviour, MPUpdateListener {
     {
         MultiplayerController.Instance.updateListener = null;
         SceneManager.LoadScene("MainMenu");
+    }
+
+    public void PlayerLeftRoom(string participantId)
+    {
+        if(_finishTimes[participantId] == -1)
+        {
+            _finishTimes[participantId] = 999999.0f;
+            if(_opponentScripts[participantId] != null)
+            {
+                Debug.Log("PlayerLeftRoom - HideCar " + participantId);
+                _opponentScripts[participantId].HideCar();
+
+            }
+            CheckForMPGameOver();
+        }
+    }
+
+    void CheckForTimeOuts()
+    {
+        foreach(var opponent in _opponentScripts.Keys)
+        {
+            // if you haven't heard from them in more than 5.0 seconds treat them as if they had left the game.
+            if (_finishTimes[opponent] == -1 && _opponentScripts[opponent].lastTimeUpdate < Time.time - timeOutThreshold)
+            {
+                PlayerLeftRoom(opponent);
+            }
+        }
     }
 }

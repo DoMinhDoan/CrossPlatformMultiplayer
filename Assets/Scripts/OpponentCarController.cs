@@ -17,12 +17,21 @@ public class OpponentCarController : MonoBehaviour
     private float _lastTimeUpdate;
     private float _timePerUpdate = 0.16f;
 
+    public float lastTimeUpdate
+    {
+        get
+        {
+            return _lastTimeUpdate;
+        }
+    }
 
     // Start is called before the first frame update
     void Start()
     {
         _startPos = transform.position;
         _startRot = transform.rotation;
+
+        _lastTimeUpdate = Time.time;
     }
 
     // Update is called once per frame
@@ -66,4 +75,9 @@ public class OpponentCarController : MonoBehaviour
         // we're going to do nothing with velocity ... for now
         _lastKnownVel = new Vector3(velX, velY, 0);
     }
+
+    public void HideCar()
+    {
+        gameObject.GetComponent<Renderer>().enabled = false;
+    }   
 }

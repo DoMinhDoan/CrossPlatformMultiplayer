@@ -139,7 +139,7 @@ public class MultiplayerController : RealTimeMultiplayerListener
         _updateMessage.AddRange(System.BitConverter.GetBytes(rotZ));
 
         byte[] messageToSend = _updateMessage.ToArray();
-        Debug.Log("Sending my update message " + messageToSend + " to all player in the room");
+        //Debug.Log("Sending my update message " + messageToSend + " to all player in the room");
         PlayGamesPlatform.Instance.RealTime.SendMessageToAll(false, messageToSend);
     }
 
@@ -151,7 +151,7 @@ public class MultiplayerController : RealTimeMultiplayerListener
         _finishMessage.AddRange(System.BitConverter.GetBytes(timePlayed));
 
         byte[] messageToSend = _finishMessage.ToArray();
-        Debug.Log("Sending my finish message " + messageToSend + " to all player in the room");
+        //Debug.Log("Sending my finish message " + messageToSend + " to all player in the room");
 
         //  sends this message reliably, instead of via the unreliable mechanism you've used all along.
         // Why? This time it's extra-super-important that all players know your car has finished.
@@ -211,7 +211,7 @@ public class MultiplayerController : RealTimeMultiplayerListener
     {
         foreach (var participantId in participantIds)
         {
-            ShowMPStatus("Player " + participantId + " has connected.");
+            ShowMPStatus("Player " + participantId + " has connected.");            
         }
     }
 
@@ -220,6 +220,10 @@ public class MultiplayerController : RealTimeMultiplayerListener
         foreach (var participantId in participantIds)
         {
             ShowMPStatus("Player " + participantId + " has disconnected.");
+            if (updateListener != null)
+            {
+                updateListener.PlayerLeftRoom(participantId);
+            }
         }
     }
 
